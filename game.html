@@ -30,10 +30,9 @@ jQuery(document).ready(function($) {
      * 2 : Starting Game
      */
 	var _depth = 0;
-	var ws = new WebSocket("ws://localhost:8080");
+	var ws = new WebSocket("ws://ec2-23-21-176-91.compute-1.amazonaws.com:8089");
 	var _term = null;
 	ws.onmessage = function(e){
-		console.log(e);
 	   var received_msg = JSON.parse(e.data).data;
 	   var received_type = JSON.parse(e.data).type;
 		switch(_depth){
@@ -42,7 +41,8 @@ jQuery(document).ready(function($) {
 				_term.set_prompt("답> ");
 				break;
 			case 2:
-				_term.insert(received_msg + "");
+				_term.echo(received_msg + "");
+				_term.pop();
 				break;
 			case 3:
 				break;
@@ -51,7 +51,6 @@ jQuery(document).ready(function($) {
 
 
     $('#chatarea').terminal(function(command, term) {
-
 
 		if( command == "Y" || command == "" ){
 			_depth = 1;
