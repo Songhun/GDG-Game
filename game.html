@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./jquery-1.10.1.min.js"></script>
+<script src="./jquery.terminal-0.6.3.min.js"></script>
+<link href="./jquery.terminal.css" rel="stylesheet"/>
+<style type='text/css'>
+html, body {
+    height: 100%;
+}
+
+section {
+    height: 50%;
+    width: 100%;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+</style>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    var id = 1;
+	/**
+	 * _depth
+     * 0 : ID
+     * 1 : Ready
+     * 2 : Starting Game
+     */
+	var _depth = 0;
+	var ws = new WebSocket("ws://localhost:8080");
+	var _term = null;
+	ws.onmessage = function(e){
+		console.log(e);
+	   var received_msg = JSON.parse(e.data).data;
+	   var received_type = JSON.parse(e.data).type;
+		switch(_depth){
+			case 1:
+				_term.exec(received_msg + "");
+				_term.set_prompt("답> ");
+				break;
+			case 2:
+				_term.insert(received_msg + "");
+				break;
+			case 3:
+				break;
+		}
+	}
+
+
+    $('#chatarea').terminal(function(command, term) {
+
+
+		if( command == "Y" || command == "" ){
+			_depth = 1;
+			_term = term;
+    		ws.send("@@start");
+           	term.push(function(command, term) {
+				if( command == ""){
+					term.pop();
+				}else{
+					if( _depth == 2 ){
+    					ws.send(command);
+						term.set_prompt("Result> ");
+					}
+				}
+				_depth = 2;		
+				_term = term;
+			 }, {
+				name: "Game",
+				prompt: '문제> '
+       	    });
+		} else {
+			term.echo('GDG Korea WebTech!!');
+		}
+    }, {
+        greetings: "환영합니다!! 게임을 시작 하시겠습니까?",
+		prompt: 'Ready?(Y/n)> '
+    });
+});
+</script>
+</head>
+<body> 
+<section>
+	<div id="chatarea" style="width: 100%; height: 230px;"></div>
+</section>
+<section>
+    <div>IME area</div>
+</section>
+</body>
+</html>
