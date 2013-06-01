@@ -41,7 +41,7 @@ jQuery(document).ready(function($) {
 				_term.set_prompt("답> ");
 				break;
 			case 2:
-				_term.echo(received_msg + "");
+				_term.echo("[[guib;#000;#00ee11]" + received_msg + "]");
 				_term.pop();
 				break;
 			case 3:
@@ -52,9 +52,9 @@ jQuery(document).ready(function($) {
 
     $('#chatarea').terminal(function(command, term) {
 
+		_term = term;
 		if( command == "Y" || command == "" ){
 			_depth = 1;
-			_term = term;
     		ws.send("@@start");
            	term.push(function(command, term) {
 				if( command == ""){
@@ -76,17 +76,51 @@ jQuery(document).ready(function($) {
 		}
     }, {
         greetings: "환영합니다!! 게임을 시작 하시겠습니까?",
-		prompt: 'Ready?(Y/n)> '
+		prompt: 'Ready?(Y/n)> ',
+		onInit : function(term){
+			console.log(term);
+			_term = term;
+		}
     });
+
+
+	/**
+	 * Public Commands
+	 */
+
+	var insertCommand = function(text){
+		_term.focus();
+		_term.insert(text);	
+	}
+
+	var exeCommand = function(){
+		_term.focus();
+		var cc = _term.get_command();
+		if( cc == null ){
+			_term.exec("");
+		}else{
+			_term.exec(cc);
+		}
+	}
+
+	// Examples
+	$("#b").click(function(e){
+		insertCommand("test");
+	});
+	$("#e").click(function(e){
+		exeCommand();
+	});
+
+
 });
 </script>
 </head>
 <body> 
 <section>
-	<div id="chatarea" style="width: 100%; height: 230px;"></div>
+	<div id="chatarea" style="width: 100%; height: 100%;"></div>
 </section>
 <section>
-    <div>IME area</div>
+    <div>IME area <br/><br/><button id="b">Text</button><button id="e">Enter</button></div>
 </section>
 </body>
 </html>
